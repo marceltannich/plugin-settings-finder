@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Plugin Settings Finder
  * Description:       Adds an admin bar dropdown that lists every active plugin with direct links to its settings pages, wherever the plugin put them: top level, Settings, Tools, Media, WooCommerce menus, WooCommerce settings tabs and sections, hidden pages.
- * Version:           1.4.0
+ * Version:           1.4.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Marcel Tannich
@@ -17,25 +17,64 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PSF_VERSION', '1.4.0' );
-define( 'PSF_PLUGIN_FILE', __FILE__ );
-define( 'PSF_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-
-require_once PSF_PLUGIN_DIR . 'includes/class-psf-scanner.php';
-require_once PSF_PLUGIN_DIR . 'includes/class-psf-admin-bar.php';
-
-/**
- * Remember when each plugin was activated, so the newest one is listed first.
- *
- * @param string $plugin Plugin basename.
- */
-function psf_record_activation( $plugin ) {
-	$times            = get_option( 'psf_activations', array() );
-	$times            = is_array( $times ) ? $times : array();
-	$times[ $plugin ] = time();
-	update_option( 'psf_activations', $times, false );
+// Already loaded, e.g. as a must-use plugin and as a regular plugin at once.
+if ( defined( 'PSF_VERSION' ) ) {
+	return;
 }
-add_action( 'activated_plugin', 'psf_record_activation' );
+
+// Refuse to load from an incomplete copy instead of failing with a fatal error.
+$psf_missing = array();
+foreach ( array( 'includes/class-psf-scanner.php', 'includes/class-psf-admin-bar.php' ) as $psf_file ) {
+	if ( ! is_readable( __DIR__ . '/' . $psf_file ) ) {
+		$psf_missing[] = $psf_file;
+	}
+}
+if ( $psf_missing ) {
+	add_action(
+		'admin_notices',
+		static function () use ( $psf_missing ) {
+			if ( ! current_user_can( 'activate_plugins' ) ) {
+				return;
+			}
+			printf(
+				'<div class="notice notice-error"><p>%s</p></div>',
+				esc_html(
+					sprintf(
+						/* translators: %s: comma-separated list of missing files. */
+						__( 'Plugin Settings Finder is incomplete and has not been loaded. Missing files: %s. Please reinstall the plugin.', 'plugin-settings-finder' ),
+						implode( ', ', $psf_missing )
+					)
+				)
+			);
+		}
+	);
+	return;
+}
+unset( $psf_missing, $psf_file );
+
+define( 'PSF_VERSION', '1.4.1' );
+define( 'PSF_PLUGIN_FILE', __FILE__ );
+define( 'PSF_PLUGIN_DIR', __DIR__ . '/' );
+
+require_once __DIR__ . '/includes/class-psf-scanner.php';
+require_once __DIR__ . '/includes/class-psf-admin-bar.php';
+
+if ( defined( 'WP_CLI' ) && WP_CLI && is_readable( __DIR__ . '/includes/class-psf-cli.php' ) ) {
+	require_once __DIR__ . '/includes/class-psf-cli.php';
+}
+
+// Remember when each plugin was activated, so the newest one can be listed first.
+// A closure, not a named function: PHP declares top-level functions at compile
+// time, so a second copy of this file would fatal despite the guard above.
+add_action(
+	'activated_plugin',
+	static function ( $plugin ) {
+		$times            = get_option( 'psf_activations', array() );
+		$times            = is_array( $times ) ? $times : array();
+		$times[ $plugin ] = time();
+		update_option( 'psf_activations', $times, false );
+	}
+);
 
 PSF_Scanner::track_registrations();
 ( new PSF_Admin_Bar() )->register();

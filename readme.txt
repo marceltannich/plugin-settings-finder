@@ -4,7 +4,7 @@ Tags: admin bar, settings, plugins, navigation, developer
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,11 +42,34 @@ Nothing leaves your site.
 
 == Installation ==
 
-As a normal plugin: upload the `plugin-settings-finder` folder to `wp-content/plugins/` and activate it.
+= As a normal plugin =
 
-As a must-use plugin: copy the `plugin-settings-finder` folder into `wp-content/mu-plugins/` and copy `extras/mu-loader.php` next to it (WordPress only loads PHP files at the top level of `mu-plugins`).
+1. Download `plugin-settings-finder.zip` from https://github.com/marceltannich/plugin-settings-finder/releases/latest
+2. Plugins › Add New Plugin › Upload Plugin, choose the ZIP, Install Now, Activate.
+3. Open any admin screen; the Plugin Settings Finder dropdown is in the admin bar.
+
+With WP-CLI: `wp plugin install https://github.com/marceltannich/plugin-settings-finder/releases/latest/download/plugin-settings-finder.zip --activate`
+
+= As a must-use plugin (recommended for review sites) =
+
+With WP-CLI: `wp settings-finder install-mu`, then `wp plugin delete plugin-settings-finder`.
+
+By hand: copy the `plugin-settings-finder` folder into `wp-content/mu-plugins/` and copy `extras/mu-loader.php` to `wp-content/mu-plugins/plugin-settings-finder-loader.php`. WordPress only loads PHP files at the top level of `mu-plugins`, so the folder alone does nothing.
+
+= WP-CLI =
+
+* `wp settings-finder rescan` rebuilds the index (loads one wp-admin page of this site as an administrator).
+* `wp settings-finder list [<plugin>] [--empty] [--format=table|csv|json|yaml]`
+* `wp settings-finder install-mu [--force]`
 
 == Changelog ==
+
+= 1.4.1 =
+* WP-CLI: `wp settings-finder list`, `rescan` and `install-mu`.
+* Loads with absolute paths and shows an admin notice instead of a fatal error if files are missing.
+* A second copy (for example regular plus must-use) no longer causes a fatal error; only the first one loaded runs.
+* Dropdown says so when there are no other active plugins.
+* Installation and usage documentation.
 
 = 1.4.0 =
 * "No settings page found" now explains what the plugin adds instead: blocks (block.json, register_block_type), shortcodes, widgets, readme hints and the readme short description.

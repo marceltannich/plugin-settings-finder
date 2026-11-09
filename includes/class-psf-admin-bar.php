@@ -155,6 +155,17 @@ final class PSF_Admin_Bar {
 			}
 		}
 
+		if ( ! $index['plugins'] ) {
+			$bar->add_node(
+				array(
+					'parent' => 'psf',
+					'id'     => 'psf-no-plugins',
+					'title'  => esc_html__( 'No other active plugins to list.', 'plugin-settings-finder' ),
+					'meta'   => array( 'class' => 'psf-entry psf-none' ),
+				)
+			);
+		}
+
 		uasort(
 			$index['plugins'],
 			static function ( $a, $b ) {
