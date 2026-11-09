@@ -4,7 +4,7 @@ Tags: admin bar, settings, plugins, navigation, developer
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,10 +29,10 @@ No guessing from plugin names. Every page is attributed by asking PHP where the 
 
 = Using it =
 
-* Sort A to Z (default) or with recently activated plugins first; the choice is saved per user.
+* Sort A to Z (default), Z to A, or with recently activated plugins first; the choice is saved per user. Each plugin is its own segment, separated by a line.
 * Type in the filter field to narrow the list by plugin name or page.
 * Clicking a plugin name opens the page that looks most like its settings.
-* When Plugin Check (PCP) is active, every plugin gets a highlighted "Check this plugin with Plugin Check (PCP)" link that opens PCP with that plugin preselected. PCP's own "Check this plugin" row link is not counted as a settings page.
+* When Plugin Check (PCP) is active, every plugin gets a highlighted "Check with PCP" link that opens PCP with that plugin preselected. PCP's own "Check this plugin" row link is not counted as a settings page.
 * Elementor, WooCommerce and Contact Form 7 are hidden by default because they are installed almost everywhere. Change the list of plugin folder names with the `psf_hidden_plugins` filter.
 * Only users who can activate plugins see the dropdown (filter: `psf_capability`).
 
@@ -47,6 +47,11 @@ As a normal plugin: upload the `plugin-settings-finder` folder to `wp-content/pl
 As a must-use plugin: copy the `plugin-settings-finder` folder into `wp-content/mu-plugins/` and copy `extras/mu-loader.php` next to it (WordPress only loads PHP files at the top level of `mu-plugins`).
 
 == Changelog ==
+
+= 1.3.0 =
+* Z to A sort option.
+* Line between plugins, so each plugin and its PCP link form one segment.
+* PCP link renamed to "Check with PCP".
 
 = 1.2.0 =
 * Highlighted Plugin Check (PCP) shortcut per plugin.

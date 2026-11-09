@@ -22,8 +22,8 @@ Plugin Settings Finder solves that. Open the **Plugin Settings** dropdown and ev
 ## Features
 
 - **Every location covered:** top-level menus, submenus anywhere, hidden pages, post type and taxonomy screens, WooCommerce settings tabs and sections, payment gateways, shipping methods, integrations and emails.
-- **Plugin Check (PCP) shortcut:** when [Plugin Check](https://wordpress.org/plugins/plugin-check/) is active, every plugin gets a highlighted *Check this plugin with Plugin Check (PCP)* link that opens PCP with that plugin preselected.
-- **Sort switch:** A to Z (default) or recently activated first, saved per user. Recently activated plugins get a "x minutes ago" badge.
+- **Plugin Check (PCP) shortcut:** when [Plugin Check](https://wordpress.org/plugins/plugin-check/) is active, every plugin gets a highlighted *Check with PCP* link that opens PCP with that plugin preselected.
+- **Sort switch:** A to Z (default), Z to A, or recently activated first, saved per user. Each plugin is its own segment, separated by a line. Recently activated plugins get a "x minutes ago" badge.
 - **Filter field** to narrow the list by plugin name or page.
 - **One click to settings:** clicking a plugin name opens the page that looks most like its settings.
 - **Less noise:** Elementor, WooCommerce and Contact Form 7 are hidden by default, because they are installed almost everywhere. Their extensions are still listed.

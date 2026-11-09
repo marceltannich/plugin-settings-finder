@@ -62,7 +62,8 @@ final class PSF_Admin_Bar {
 	 * @return string
 	 */
 	private function sort_order() {
-		return 'recent' === get_user_meta( get_current_user_id(), 'psf_sort', true ) ? 'recent' : 'alpha';
+		$sort = get_user_meta( get_current_user_id(), 'psf_sort', true );
+		return in_array( $sort, array( 'za', 'recent' ), true ) ? $sort : 'alpha';
 	}
 
 	/**
@@ -75,7 +76,8 @@ final class PSF_Admin_Bar {
 		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['psf_nonce'] ) ), 'psf_sort' ) ) {
 			return;
 		}
-		$sort = 'recent' === sanitize_key( wp_unslash( $_GET['psf_sort'] ) ) ? 'recent' : 'alpha';
+		$sort = sanitize_key( wp_unslash( $_GET['psf_sort'] ) );
+		$sort = in_array( $sort, array( 'za', 'recent' ), true ) ? $sort : 'alpha';
 		update_user_meta( get_current_user_id(), 'psf_sort', $sort );
 		wp_safe_redirect( remove_query_arg( array( 'psf_sort', 'psf_nonce' ) ) );
 		exit;
@@ -168,13 +170,15 @@ final class PSF_Admin_Bar {
 				'title'  => esc_html__( 'Sort:', 'plugin-settings-finder' ) . ' '
 					. $this->sort_link( 'alpha', __( 'A–Z', 'plugin-settings-finder' ), $sort )
 					. ' · '
+					. $this->sort_link( 'za', __( 'Z–A', 'plugin-settings-finder' ), $sort )
+					. ' · '
 					. $this->sort_link( 'recent', __( 'Recently activated first', 'plugin-settings-finder' ), $sort ),
 				'meta'   => array( 'class' => 'psf-sort' ),
 			)
 		);
 
 		// "recent" mode: recently activated on top, newest first; the rest A–Z.
-		// "alpha" mode: one A–Z list, recent plugins keep their "x ago" badge.
+		// "alpha" / "za" mode: one sorted list, recent plugins keep their "x ago" badge.
 		$recent = array();
 		foreach ( $index['plugins'] as $basename => $plugin ) {
 			if ( isset( $times[ $basename ] ) && time() - $times[ $basename ] < self::RECENT_FOR ) {
@@ -184,7 +188,11 @@ final class PSF_Admin_Bar {
 		arsort( $recent );
 		$recent = array_slice( $recent, 0, 5, true );
 
-		if ( 'alpha' === $sort ) {
+		if ( 'za' === $sort ) {
+			$index['plugins'] = array_reverse( $index['plugins'], true );
+		}
+
+		if ( 'recent' !== $sort ) {
 			foreach ( $index['plugins'] as $basename => $plugin ) {
 				$this->plugin_nodes( $bar, $basename, $plugin, isset( $recent[ $basename ] ) ? $recent[ $basename ] : null );
 			}
@@ -358,7 +366,7 @@ final class PSF_Admin_Bar {
 				array(
 					'parent' => 'psf',
 					'id'     => $id . '-pcp',
-					'title'  => '<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span> ' . esc_html__( 'Check this plugin with Plugin Check (PCP)', 'plugin-settings-finder' ),
+					'title'  => '<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span> ' . esc_html__( 'Check with PCP', 'plugin-settings-finder' ),
 					'href'   => admin_url( 'tools.php?page=plugin-check&plugin=' . rawurlencode( $basename ) ),
 					'meta'   => array( 'class' => 'psf-entry psf-pcp' ),
 				)
@@ -379,10 +387,12 @@ final class PSF_Admin_Bar {
 			'#wpadminbar #wp-admin-bar-psf > .ab-sub-wrapper{max-height:calc(100vh - 48px);overflow-y:auto;min-width:340px}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-section > .ab-item{font-size:11px;text-transform:uppercase;letter-spacing:.04em;opacity:.7;margin-top:6px}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-plugin > .ab-item{font-weight:600;margin-top:4px}'
+			. '#wpadminbar #wp-admin-bar-psf .psf-plugin{border-top:1px solid rgba(240,246,252,.22);margin-top:6px;padding-top:4px}'
+			. '#wpadminbar #wp-admin-bar-psf .psf-sort + .psf-plugin,#wpadminbar #wp-admin-bar-psf .psf-section + .psf-plugin{border-top:0;margin-top:0;padding-top:0}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-plugin-empty > .ab-item{opacity:.75}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-entry > .ab-item{padding-left:24px}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-none > .ab-item{font-style:italic;opacity:.65}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-pcp{margin:3px 10px 8px 24px;border-top:1px dashed rgba(240,246,252,.25);padding-top:3px}'
+			. '#wpadminbar #wp-admin-bar-psf .psf-pcp{margin:2px 10px 6px 24px}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item{padding-left:0;color:#68de7c}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item:hover,#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item:focus{color:#fff;background:#00a32a}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-pcp .dashicons{font:normal 16px/1 dashicons;vertical-align:-3px;margin:0 4px 0 6px;color:inherit}'

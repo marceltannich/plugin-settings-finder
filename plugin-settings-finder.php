@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Plugin Settings Finder
  * Description:       Adds an admin bar dropdown that lists every active plugin with direct links to its settings pages, wherever the plugin put them: top level, Settings, Tools, Media, WooCommerce menus, WooCommerce settings tabs and sections, hidden pages.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Marcel Tannich
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PSF_VERSION', '1.2.0' );
+define( 'PSF_VERSION', '1.3.0' );
 define( 'PSF_PLUGIN_FILE', __FILE__ );
 define( 'PSF_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
