@@ -4,7 +4,7 @@ Tags: admin bar, settings, plugins, navigation, developer
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.1
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,7 +36,7 @@ No guessing from plugin names. Every page is attributed by asking PHP where the 
 * Elementor, WooCommerce and Contact Form 7 are hidden by default because they are installed almost everywhere. Change the list of plugin folder names with the `psf_hidden_plugins` filter.
 * Only users who can activate plugins see the dropdown (filter: `psf_capability`).
 
-The list is rebuilt on admin screens whenever the set of active plugins changes, every ten minutes, or when you click **Rescan now**.
+The list is rebuilt right away when the set of active plugins changes and when you click **Rescan now**; otherwise it is refreshed every ten minutes in the background, after the page has been delivered.
 
 Nothing leaves your site.
 
@@ -63,6 +63,14 @@ By hand: copy the `plugin-settings-finder` folder into `wp-content/mu-plugins/` 
 * `wp settings-finder install-mu [--force]`
 
 == Changelog ==
+
+= 1.5.0 =
+* Refactor: the scanner is split into detectors (menu, WooCommerce, row links, code scan, usage) sharing one context; add your own via the `psf_detectors` filter.
+* Admin screens no longer wait for a scan: an old index is shown and refreshed after the response. It is still rebuilt immediately when plugins are activated or deactivated.
+* Post types of symlinked plugins are attributed correctly.
+* CSS and JS are real asset files, loaded only for users who see the dropdown.
+* Translation template in languages/.
+* Tests: fixture plugins, PHPUnit (46 tests), WP-CLI smoke tests; CI with PHP 7.4 to 8.4, WordPress Coding Standards and Plugin Check.
 
 = 1.4.1 =
 * WP-CLI: `wp settings-finder list`, `rescan` and `install-mu`.

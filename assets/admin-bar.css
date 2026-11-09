@@ -1,0 +1,134 @@
+/* Plugin Settings Finder: admin bar dropdown. Every selector is scoped to #wp-admin-bar-psf. */
+
+#wpadminbar #wp-admin-bar-psf > .ab-sub-wrapper {
+	max-height: calc(100vh - 48px);
+	overflow-y: auto;
+	min-width: 340px;
+}
+
+/* Filter field and sort switch */
+#wpadminbar #wp-admin-bar-psf .psf-filter > .ab-item {
+	height: auto;
+	padding: 6px 10px;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-filter-input {
+	width: 100%;
+	box-sizing: border-box;
+	height: 26px;
+	font-size: 13px;
+	padding: 2px 6px;
+	border-radius: 3px;
+	border: 1px solid #8c8f94;
+	background: #fff;
+	color: #1d2327;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-sort > .ab-item {
+	font-size: 12px;
+	opacity: 0.85;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-sort a.psf-sort-link {
+	display: inline;
+	padding: 0;
+	height: auto;
+	color: #72aee6;
+	text-decoration: underline;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-sort .psf-sort-on {
+	font-weight: 600;
+}
+
+/* Sections ("Recently activated") */
+#wpadminbar #wp-admin-bar-psf .psf-section > .ab-item {
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	opacity: 0.7;
+	margin-top: 6px;
+}
+
+/* One segment per plugin */
+#wpadminbar #wp-admin-bar-psf .psf-plugin {
+	border-top: 1px solid rgba(240, 246, 252, 0.22);
+	margin-top: 6px;
+	padding-top: 4px;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-sort + .psf-plugin,
+#wpadminbar #wp-admin-bar-psf .psf-section + .psf-plugin {
+	border-top: 0;
+	margin-top: 0;
+	padding-top: 0;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-plugin > .ab-item {
+	font-weight: 600;
+	margin-top: 4px;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-plugin-empty > .ab-item {
+	opacity: 0.75;
+}
+
+/* Pages and hints of a plugin */
+#wpadminbar #wp-admin-bar-psf .psf-entry > .ab-item {
+	padding-left: 24px;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-none > .ab-item {
+	font-style: italic;
+	opacity: 0.65;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-info > .ab-item {
+	font-size: 12px;
+	line-height: 18px;
+	height: auto;
+	min-height: 20px;
+	white-space: normal;
+	max-width: 420px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	opacity: 0.9;
+}
+
+/* Plugin Check shortcut */
+#wpadminbar #wp-admin-bar-psf .psf-pcp {
+	margin: 2px 10px 6px 24px;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item {
+	padding-left: 0;
+	color: #68de7c;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item:hover,
+#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item:focus {
+	color: #fff;
+	background: #00a32a;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-pcp .dashicons {
+	font: normal 16px/1 dashicons;
+	vertical-align: -3px;
+	margin: 0 4px 0 6px;
+	color: inherit;
+}
+
+/* Badges ("hidden page", "3 minutes ago") */
+#wpadminbar #wp-admin-bar-psf .psf-badge {
+	font-size: 10px;
+	line-height: 1;
+	padding: 2px 5px;
+	border-radius: 3px;
+	background: rgba(240, 246, 252, 0.15);
+	margin-left: 6px;
+}
+
+#wpadminbar #wp-admin-bar-psf .psf-new {
+	background: #2271b1;
+	color: #fff;
+}

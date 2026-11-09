@@ -45,7 +45,7 @@ It does not guess from plugin names. Each page is attributed by asking PHP where
 | Plugins screen row links ("Settings") | The plugin's own `plugin_action_links` filters |
 | Fallback | The plugin's PHP files are scanned for slugs passed to `add_*_page()` and matched against pages that are actually registered (marked *found in code*) |
 
-The list is rebuilt on admin screens whenever the set of active plugins changes, every ten minutes, or when you click **Rescan now**.
+The list is rebuilt right away when the set of active plugins changes (so a plugin you just activated is listed immediately) and when you click **Rescan now**. Otherwise it is refreshed every ten minutes in the background, after the page has been delivered, so admin screens never wait for a scan.
 
 ## Installation
 
@@ -123,7 +123,7 @@ Hover **Plugin Settings Finder** in the admin bar:
 * **Check with PCP** opens [Plugin Check](https://wordpress.org/plugins/plugin-check/) with that plugin preselected (only when Plugin Check is active).
 * **Sort:** A–Z, Z–A or recently activated first. Saved per user.
 * **Filter** field: type part of a plugin or page name.
-* **Rescan now** at the bottom rebuilds the list. It is also rebuilt automatically when plugins are activated, deactivated or updated, and every ten minutes.
+* **Rescan now** at the bottom rebuilds the list. It is also rebuilt automatically when plugins are activated, deactivated or updated, and refreshed in the background every ten minutes.
 
 Elementor, WooCommerce and Contact Form 7 are hidden by default (see Filters).
 
@@ -157,6 +157,20 @@ add_filter( 'psf_capability', function () {
 	return 'manage_options';
 } );
 ```
+
+## Development
+
+Tests, coding standards and CI: see [CONTRIBUTING.md](CONTRIBUTING.md). In short:
+
+```bash
+composer install
+composer test-site   # throwaway WordPress with SQLite and the fixture plugins
+composer test        # PHPUnit
+composer smoke       # WP-CLI end to end
+composer phpcs       # WordPress Coding Standards
+```
+
+Add your own detector with the `psf_detectors` filter (see CONTRIBUTING.md).
 
 ## License
 

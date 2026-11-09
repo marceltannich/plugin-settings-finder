@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Plugin Settings Finder
  * Description:       Adds an admin bar dropdown that lists every active plugin with direct links to its settings pages, wherever the plugin put them: top level, Settings, Tools, Media, WooCommerce menus, WooCommerce settings tabs and sections, hidden pages.
- * Version:           1.4.1
+ * Version:           1.5.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Marcel Tannich
@@ -22,9 +22,24 @@ if ( defined( 'PSF_VERSION' ) ) {
 	return;
 }
 
+// Every file the plugin needs, in load order.
+$psf_files = array(
+	'includes/interface-psf-detector.php',
+	'includes/class-psf-context.php',
+	'includes/class-psf-files.php',
+	'includes/class-psf-registrations.php',
+	'includes/detectors/class-psf-detector-menu.php',
+	'includes/detectors/class-psf-detector-woocommerce.php',
+	'includes/detectors/class-psf-detector-action-links.php',
+	'includes/detectors/class-psf-detector-code.php',
+	'includes/detectors/class-psf-detector-usage.php',
+	'includes/class-psf-scanner.php',
+	'includes/class-psf-admin-bar.php',
+);
+
 // Refuse to load from an incomplete copy instead of failing with a fatal error.
 $psf_missing = array();
-foreach ( array( 'includes/class-psf-scanner.php', 'includes/class-psf-admin-bar.php' ) as $psf_file ) {
+foreach ( $psf_files as $psf_file ) {
 	if ( ! is_readable( __DIR__ . '/' . $psf_file ) ) {
 		$psf_missing[] = $psf_file;
 	}
@@ -50,14 +65,15 @@ if ( $psf_missing ) {
 	);
 	return;
 }
-unset( $psf_missing, $psf_file );
 
-define( 'PSF_VERSION', '1.4.1' );
+define( 'PSF_VERSION', '1.5.0' );
 define( 'PSF_PLUGIN_FILE', __FILE__ );
 define( 'PSF_PLUGIN_DIR', __DIR__ . '/' );
 
-require_once __DIR__ . '/includes/class-psf-scanner.php';
-require_once __DIR__ . '/includes/class-psf-admin-bar.php';
+foreach ( $psf_files as $psf_file ) {
+	require_once __DIR__ . '/' . $psf_file;
+}
+unset( $psf_files, $psf_missing, $psf_file );
 
 if ( defined( 'WP_CLI' ) && WP_CLI && is_readable( __DIR__ . '/includes/class-psf-cli.php' ) ) {
 	require_once __DIR__ . '/includes/class-psf-cli.php';
@@ -76,5 +92,16 @@ add_action(
 	}
 );
 
-PSF_Scanner::track_registrations();
+// Translations from languages/, wherever the plugin lives (plugins or mu-plugins).
+add_action(
+	'init',
+	static function () {
+		$mofile = __DIR__ . '/languages/plugin-settings-finder-' . determine_locale() . '.mo';
+		if ( is_readable( $mofile ) ) {
+			load_textdomain( 'plugin-settings-finder', $mofile );
+		}
+	}
+);
+
+PSF_Registrations::track();
 ( new PSF_Admin_Bar() )->register();

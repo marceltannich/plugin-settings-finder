@@ -1,0 +1,42 @@
+{
+	"name": "marceltannich/plugin-settings-finder",
+	"description": "Admin bar dropdown with direct links to every active plugin's settings pages.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.4"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^9.6",
+		"wp-coding-standards/wpcs": "^3.1",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"platform": {
+			"php": "7.4.33"
+		}
+	},
+	"scripts": {
+		"lint": "find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l > /dev/null",
+		"phpcs": "phpcs",
+		"phpcbf": "phpcbf",
+		"test-site": "bash tests/bin/install-test-site.sh",
+		"test": "bash tests/bin/run-phpunit.sh",
+		"smoke": "bash tests/bin/smoke.sh",
+		"build": "bash bin/build-zip.sh",
+		"pot": "wp i18n make-pot . languages/plugin-settings-finder.pot --slug=plugin-settings-finder --domain=plugin-settings-finder --exclude=vendor,tests,dist,bin"
+	},
+	"scripts-descriptions": {
+		"lint": "php -l on every PHP file",
+		"phpcs": "WordPress Coding Standards + PHP 7.4 compatibility",
+		"test-site": "Create the disposable test site (WITH_WOO=1 for WooCommerce)",
+		"test": "PHPUnit inside the test site's wp-admin context",
+		"smoke": "End-to-end checks through WP-CLI and a local web server",
+		"build": "Build dist/plugin-settings-finder.zip with runtime files only",
+		"pot": "Regenerate the translation template"
+	}
+}

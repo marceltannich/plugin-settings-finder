@@ -1,0 +1,167 @@
+# Copyright (C) 2026 Marcel Tannich
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Plugin Settings Finder 1.5.0\n"
+"Report-Msgid-Bugs-To: https://github.com/marceltannich/plugin-settings-finder/issues\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-09T13:46:12+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: plugin-settings-finder\n"
+
+#. Plugin Name of the plugin
+#: plugin-settings-finder.php
+#: includes/class-psf-admin-bar.php:173
+msgid "Plugin Settings Finder"
+msgstr ""
+
+#. Description of the plugin
+#: plugin-settings-finder.php
+msgid "Adds an admin bar dropdown that lists every active plugin with direct links to its settings pages, wherever the plugin put them: top level, Settings, Tools, Media, WooCommerce menus, WooCommerce settings tabs and sections, hidden pages."
+msgstr ""
+
+#. Author of the plugin
+#: plugin-settings-finder.php
+msgid "Marcel Tannich"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:184
+msgid "Open any admin screen once to build the list."
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:195
+msgid "Filter plugins…"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:195
+msgid "Filter plugins"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:213
+msgid "No other active plugins to list."
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:231
+msgid "Sort:"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:232
+msgid "A–Z"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:234
+msgid "Z–A"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:236
+msgid "Recently activated first"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:265
+msgid "Recently activated"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:269
+msgid "All active plugins"
+msgstr ""
+
+#. translators: %s: human time difference, e.g. "3 mins".
+#: includes/class-psf-admin-bar.php:308
+msgid "Rescan now (last scan %s ago)"
+msgstr ""
+
+#. translators: %s: comma-separated block titles.
+#: includes/class-psf-admin-bar.php:351
+msgid "Blocks: %s"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:353
+msgid "open editor"
+msgstr ""
+
+#. translators: %s: list of shortcodes.
+#: includes/class-psf-admin-bar.php:359
+msgid "Shortcodes: %s"
+msgstr ""
+
+#. translators: %s: comma-separated widget names.
+#: includes/class-psf-admin-bar.php:367
+msgid "Widgets: %s"
+msgstr ""
+
+#. translators: %s: comma-separated hints such as "blocks, shortcodes".
+#: includes/class-psf-admin-bar.php:375
+msgid "Readme mentions: %s"
+msgstr ""
+
+#. translators: %d: number of further items.
+#: includes/class-psf-admin-bar.php:412
+msgid "+%d more"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:445
+msgid "hidden page"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:446
+msgid "Plugins screen link"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:447
+msgid "found in code"
+msgstr ""
+
+#. translators: %s: human time difference.
+#: includes/class-psf-admin-bar.php:455
+msgid "%s ago"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:479
+msgid "No settings page found"
+msgstr ""
+
+#: includes/class-psf-admin-bar.php:508
+msgid "Check with PCP"
+msgstr ""
+
+#: includes/detectors/class-psf-detector-usage.php:128
+msgid "blocks"
+msgstr ""
+
+#: includes/detectors/class-psf-detector-usage.php:129
+msgid "shortcodes"
+msgstr ""
+
+#: includes/detectors/class-psf-detector-usage.php:130
+msgid "widgets"
+msgstr ""
+
+#: includes/detectors/class-psf-detector-usage.php:131
+msgid "Customizer"
+msgstr ""
+
+#: includes/detectors/class-psf-detector-usage.php:132
+msgid "WP-CLI"
+msgstr ""
+
+#: includes/detectors/class-psf-detector-usage.php:133
+msgid "works without configuration"
+msgstr ""
+
+#: includes/detectors/class-psf-detector-woocommerce.php:43
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/detectors/class-psf-detector-woocommerce.php:43
+msgid "Settings"
+msgstr ""
+
+#. translators: %s: comma-separated list of missing files.
+#: plugin-settings-finder.php:59
+msgid "Plugin Settings Finder is incomplete and has not been loaded. Missing files: %s. Please reinstall the plugin."
+msgstr ""

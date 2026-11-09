@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+	Run with `composer test` (needs a test site, see CONTRIBUTING.md).
+	PHPUnit is started from inside WordPress by tests/bin/phpunit.php, so there is no bootstrap here.
+-->
+<phpunit
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+	colors="true"
+	beStrictAboutOutputDuringTests="true"
+	failOnRisky="true"
+	failOnWarning="true">
+	<testsuites>
+		<testsuite name="plugin-settings-finder">
+			<directory suffix="Test.php">tests/phpunit</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>

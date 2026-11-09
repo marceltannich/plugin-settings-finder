@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: PHP ${{ matrix.php }} syntax
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: none
+      - name: php -l
+        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l > /dev/null
+
+  phpcs:
+    name: Coding standards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer
+      - run: composer install --no-interaction --no-progress
+      - run: vendor/bin/phpcs
+
+  test:
+    name: Tests (PHP ${{ matrix.php }}${{ matrix.woo == '1' && ', WooCommerce' || '' }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '7.4'
+            woo: '0'
+          - php: '8.3'
+            woo: '1'
+    env:
+      PSF_TEST_SITE: /tmp/psf-test-site
+      WITH_WOO: ${{ matrix.woo }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: sqlite3, pdo_sqlite, zip
+          coverage: none
+          tools: composer, wp-cli
+      - run: composer install --no-interaction --no-progress
+      - name: Test site
+        run: bash tests/bin/install-test-site.sh
+      - name: PHPUnit
+        run: bash tests/bin/run-phpunit.sh
+      - name: Smoke tests
+        run: bash tests/bin/smoke.sh
+
+  plugin-check:
+    name: Plugin Check (release ZIP)
+    runs-on: ubuntu-latest
+    env:
+      PSF_TEST_SITE: /tmp/psf-test-site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sqlite3, pdo_sqlite, zip
+          coverage: none
+          tools: composer, wp-cli
+      - run: composer install --no-interaction --no-progress
+      - run: bash tests/bin/install-test-site.sh
+      - run: bash bin/build-zip.sh
+      - name: Run Plugin Check on the built ZIP
+        run: |
+          source tests/bin/lib.sh
+          wp plugin deactivate plugin-settings-finder --quiet
+          rm "$PSF_TEST_SITE/wp-content/plugins/plugin-settings-finder"
+          wp plugin install dist/plugin-settings-finder.zip --quiet
+          wp plugin install plugin-check --activate --quiet
+          wp plugin check plugin-settings-finder --format=json > pcp.json || true
+          # Errors fail the build. Warnings are listed; the "plugin" trademark warning is expected (not on wordpress.org).
+          php -r '
+            $errors = 0;
+            foreach ( preg_split( "/\R/", file_get_contents( "pcp.json" ) ) as $line ) {
+              $rows = json_decode( $line, true );
+              if ( ! is_array( $rows ) ) { continue; }
+              foreach ( $rows as $row ) {
+                if ( ! isset( $row["type"] ) ) { continue; }
+                printf( "%s %s: %s\n", $row["type"], $row["code"], $row["message"] );
+                $errors += "ERROR" === $row["type"] ? 1 : 0;
+              }
+            }
+            exit( $errors ? 1 : 0 );
+          '
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin-settings-finder-zip
+          path: dist/plugin-settings-finder.zip

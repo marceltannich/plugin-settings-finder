@@ -84,23 +84,73 @@ final class PSF_Admin_Bar {
 	}
 
 	/**
-	 * Current index; rebuilt on admin screens when stale.
+	 * Current index.
+	 *
+	 * Built synchronously only when the list would otherwise be wrong for the
+	 * user right now: no index yet, the "Rescan" link, or the set of active
+	 * plugins changed (e.g. right after activating the plugin under review).
+	 * When it is merely old, the page renders with the stored index and the
+	 * rebuild runs on shutdown, after the response has been sent.
 	 *
 	 * @return array|null
 	 */
 	private function index() {
-		$index = get_option( self::OPTION );
-		$index = is_array( $index ) && isset( $index['plugins'] ) ? $index : null;
+		$index = self::stored_index();
 
 		if ( ! is_admin() || empty( $GLOBALS['menu'] ) ) {
 			return $index;
 		}
 
-		if ( $this->force || null === $index || $index['sig'] !== PSF_Scanner::signature() || time() - $index['time'] > self::MAX_AGE ) {
-			$index = ( new PSF_Scanner() )->build();
-			update_option( self::OPTION, $index, false );
+		if ( $this->force || null === $index || PSF_Scanner::signature() !== $index['sig'] ) {
+			return self::rebuild();
+		}
+		if ( time() - (int) $index['time'] > self::MAX_AGE ) {
+			add_action( 'shutdown', array( __CLASS__, 'rebuild_after_response' ), PHP_INT_MAX );
 		}
 		return $index;
+	}
+
+	/**
+	 * The stored index, or null.
+	 *
+	 * @return array|null
+	 */
+	public static function stored_index() {
+		$index = get_option( self::OPTION );
+		return is_array( $index ) && isset( $index['plugins'], $index['sig'], $index['time'] ) ? $index : null;
+	}
+
+	/**
+	 * Build and store the index now.
+	 *
+	 * @return array
+	 */
+	public static function rebuild() {
+		$index = ( new PSF_Scanner() )->build();
+		update_option( self::OPTION, $index, false );
+		return $index;
+	}
+
+	/**
+	 * Rebuild a stale index once the page has been delivered.
+	 *
+	 * The admin menu globals are still populated on shutdown. A short lock
+	 * keeps parallel admin requests from rebuilding at the same time.
+	 */
+	public static function rebuild_after_response() {
+		if ( get_transient( 'psf_rebuilding' ) || empty( $GLOBALS['menu'] ) ) {
+			return;
+		}
+		set_transient( 'psf_rebuilding', 1, MINUTE_IN_SECONDS );
+
+		if ( function_exists( 'fastcgi_finish_request' ) ) {
+			fastcgi_finish_request();
+		} elseif ( function_exists( 'litespeed_finish_request' ) ) {
+			litespeed_finish_request();
+		}
+
+		self::rebuild();
+		delete_transient( 'psf_rebuilding' );
 	}
 
 	/**
@@ -471,41 +521,7 @@ final class PSF_Admin_Bar {
 			return;
 		}
 
-		wp_add_inline_style(
-			'admin-bar',
-			'#wpadminbar #wp-admin-bar-psf > .ab-sub-wrapper{max-height:calc(100vh - 48px);overflow-y:auto;min-width:340px}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-section > .ab-item{font-size:11px;text-transform:uppercase;letter-spacing:.04em;opacity:.7;margin-top:6px}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-plugin > .ab-item{font-weight:600;margin-top:4px}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-plugin{border-top:1px solid rgba(240,246,252,.22);margin-top:6px;padding-top:4px}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-sort + .psf-plugin,#wpadminbar #wp-admin-bar-psf .psf-section + .psf-plugin{border-top:0;margin-top:0;padding-top:0}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-plugin-empty > .ab-item{opacity:.75}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-entry > .ab-item{padding-left:24px}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-none > .ab-item{font-style:italic;opacity:.65}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-info > .ab-item{font-size:12px;line-height:18px;height:auto;min-height:20px;white-space:normal;max-width:420px;padding-top:2px;padding-bottom:2px;opacity:.9}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-pcp{margin:2px 10px 6px 24px}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item{padding-left:0;color:#68de7c}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item:hover,#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item:focus{color:#fff;background:#00a32a}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-pcp .dashicons{font:normal 16px/1 dashicons;vertical-align:-3px;margin:0 4px 0 6px;color:inherit}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-badge{font-size:10px;line-height:1;padding:2px 5px;border-radius:3px;background:rgba(240,246,252,.15);margin-left:6px}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-new{background:#2271b1;color:#fff}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-filter > .ab-item{height:auto;padding:6px 10px}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-sort > .ab-item{font-size:12px;opacity:.85}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-sort a.psf-sort-link{display:inline;padding:0;height:auto;color:#72aee6;text-decoration:underline}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-sort .psf-sort-on{font-weight:600}'
-			. '#wpadminbar #wp-admin-bar-psf .psf-filter-input{width:100%;box-sizing:border-box;height:26px;font-size:13px;padding:2px 6px;border-radius:3px;border:1px solid #8c8f94;background:#fff;color:#1d2327}'
-		);
-
-		wp_add_inline_script(
-			'admin-bar',
-			'(function(){document.addEventListener("input",function(e){'
-			. 'if(!e.target.classList||!e.target.classList.contains("psf-filter-input"))return;'
-			. 'var q=e.target.value.toLowerCase().trim(),groups=[],cur=null;'
-			. 'document.querySelectorAll("#wp-admin-bar-psf-default > li").forEach(function(li){'
-			. 'if(li.classList.contains("psf-plugin")){cur={items:[li],text:li.textContent+" "+(li.title||"")};groups.push(cur);}'
-			. 'else if(li.classList.contains("psf-entry")&&cur){cur.items.push(li);cur.text+=" "+li.textContent;}'
-			. 'else if(li.classList.contains("psf-section")){li.style.display=q?"none":"";}});'
-			. 'groups.forEach(function(g){var show=!q||g.text.toLowerCase().indexOf(q)>-1;g.items.forEach(function(li){li.style.display=show?"":"none";});});'
-			. '});})();'
-		);
+		wp_enqueue_style( 'psf-admin-bar', plugins_url( 'assets/admin-bar.css', PSF_PLUGIN_FILE ), array( 'admin-bar' ), PSF_VERSION );
+		wp_enqueue_script( 'psf-admin-bar', plugins_url( 'assets/admin-bar.js', PSF_PLUGIN_FILE ), array(), PSF_VERSION, true );
 	}
 }

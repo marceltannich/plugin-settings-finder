@@ -244,7 +244,7 @@ final class PSF_CLI {
 		if ( ! $wp_filesystem->mkdir( $target, FS_CHMOD_DIR ) ) {
 			WP_CLI::error( "Could not create {$target}." );
 		}
-		$copied = copy_dir( $source, $target, array( '.git' ) );
+		$copied = copy_dir( $source, $target, array( '.git', '.github', 'tests', 'vendor', 'node_modules', 'dist', 'bin' ) );
 		if ( is_wp_error( $copied ) ) {
 			WP_CLI::error( $copied->get_error_message() );
 		}
@@ -271,7 +271,11 @@ final class PSF_CLI {
 	 */
 	private function usage_summary( array $usage ) {
 		$parts = array();
-		foreach ( array( 'blocks' => 'blocks', 'shortcodes' => 'shortcodes', 'widgets' => 'widgets' ) as $key => $label ) {
+		foreach ( array(
+			'blocks'     => 'blocks',
+			'shortcodes' => 'shortcodes',
+			'widgets'    => 'widgets',
+		) as $key => $label ) {
 			if ( ! empty( $usage[ $key ] ) ) {
 				$parts[] = $label . ': ' . implode( ', ', $usage[ $key ] );
 			}
