@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Renders the "Plugin Settings" dropdown and keeps the index fresh.
+ * Renders the "Plugin Settings Finder" dropdown and keeps the index fresh.
  */
 final class PSF_Admin_Bar {
 
@@ -120,7 +120,7 @@ final class PSF_Admin_Bar {
 		$bar->add_node(
 			array(
 				'id'    => 'psf',
-				'title' => '<span class="ab-icon dashicons dashicons-admin-settings" aria-hidden="true"></span><span class="ab-label">' . esc_html__( 'Plugin Settings', 'plugin-settings-finder' ) . '</span>',
+				'title' => '<span class="ab-icon dashicons dashicons-admin-settings" aria-hidden="true"></span><span class="ab-label">' . esc_html__( 'Plugin Settings Finder', 'plugin-settings-finder' ) . '</span>',
 				'href'  => false,
 				'meta'  => array( 'class' => 'psf-root' ),
 			)
