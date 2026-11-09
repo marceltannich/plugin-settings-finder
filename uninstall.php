@@ -9,7 +9,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-foreach ( array( 'psf_index', 'psf_activations', 'psf_code_cache' ) as $psf_option ) {
+foreach ( array( 'psf_index', 'psf_activations', 'psf_code_cache', 'psf_usage_cache' ) as $psf_option ) {
 	delete_option( $psf_option );
 }
 

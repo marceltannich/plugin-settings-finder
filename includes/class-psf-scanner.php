@@ -156,6 +156,7 @@ final class PSF_Scanner {
 		$this->scan_woocommerce();
 		$this->scan_action_links();
 		$this->scan_code();
+		$usage = $this->scan_usage();
 
 		$plugins = array();
 		foreach ( $this->plugins as $basename => $plugin ) {
@@ -184,6 +185,7 @@ final class PSF_Scanner {
 			$plugins[ $basename ] = array(
 				'name'    => $plugin['name'],
 				'entries' => $entries,
+				'usage'   => isset( $usage[ $basename ] ) ? $usage[ $basename ] : array(),
 			);
 		}
 
@@ -796,5 +798,202 @@ final class PSF_Scanner {
 			}
 		}
 		return array_slice( array_values( array_unique( $slugs ) ), 0, 300 );
+	}
+
+	/**
+	 * For plugins without any admin page: what do they add instead?
+	 * Blocks, shortcodes and widgets come from the live registries (attributed
+	 * by callback/class file) plus block.json files; the readme supplies the
+	 * short description and hints like "block" or "shortcode".
+	 *
+	 * @return array<string, array{blocks:string[], shortcodes:string[], widgets:string[], readme:string, mentions:string[]}>
+	 */
+	private function scan_usage() {
+		global $shortcode_tags, $wp_widget_factory;
+
+		$targets = array();
+		foreach ( $this->plugins as $basename => $plugin ) {
+			if ( empty( $this->entries[ $basename ] ) ) {
+				$targets[ $basename ] = array(
+					'blocks'     => array(),
+					'shortcodes' => array(),
+					'widgets'    => array(),
+					'readme'     => '',
+					'mentions'   => array(),
+				);
+			}
+		}
+		if ( ! $targets ) {
+			return array();
+		}
+
+		foreach ( (array) $shortcode_tags as $tag => $callback ) {
+			$owner = $this->owner_of_file( $this->callback_file( $callback ) );
+			if ( $owner && isset( $targets[ $owner ] ) ) {
+				$targets[ $owner ]['shortcodes'][] = '[' . $tag . ']';
+			}
+		}
+
+		if ( is_object( $wp_widget_factory ) && ! empty( $wp_widget_factory->widgets ) ) {
+			foreach ( $wp_widget_factory->widgets as $widget ) {
+				$owner = is_object( $widget ) ? $this->owner_of_file( $this->callback_file( $widget ) ) : null;
+				if ( $owner && isset( $targets[ $owner ] ) ) {
+					$targets[ $owner ]['widgets'][] = $this->clean( isset( $widget->name ) ? $widget->name : get_class( $widget ) );
+				}
+			}
+		}
+
+		$cache   = get_option( 'psf_usage_cache', array() );
+		$cache   = is_array( $cache ) ? $cache : array();
+		$changed = false;
+		$blocks  = class_exists( 'WP_Block_Type_Registry' ) ? WP_Block_Type_Registry::get_instance() : null;
+
+		foreach ( $targets as $basename => &$usage ) {
+			$plugin = $this->plugins[ $basename ];
+			if ( ! isset( $cache[ $basename ] ) || $cache[ $basename ]['v'] !== $plugin['version'] ) {
+				$cache[ $basename ] = array_merge( array( 'v' => $plugin['version'] ), $this->read_plugin_files( $plugin ) );
+				$changed            = true;
+			}
+			$files = $cache[ $basename ];
+
+			foreach ( $files['blocks'] as $name => $title ) {
+				$registered = $blocks ? $blocks->get_registered( $name ) : null;
+				if ( $registered && ! empty( $registered->title ) ) {
+					$title = $registered->title;
+				}
+				$usage['blocks'][] = '' !== (string) $title ? (string) $title : (string) $name;
+			}
+			$usage['blocks']     = array_values( array_unique( $usage['blocks'] ) );
+			$usage['shortcodes'] = array_values( array_unique( $usage['shortcodes'] ) );
+			$usage['widgets']    = array_values( array_unique( $usage['widgets'] ) );
+			$usage['readme']     = $files['readme'];
+
+			// Readme hints only for things not already proven at runtime.
+			$labels = array(
+				'blocks'     => __( 'blocks', 'plugin-settings-finder' ),
+				'shortcodes' => __( 'shortcodes', 'plugin-settings-finder' ),
+				'widgets'    => __( 'widgets', 'plugin-settings-finder' ),
+				'customizer' => __( 'Customizer', 'plugin-settings-finder' ),
+				'cli'        => __( 'WP-CLI', 'plugin-settings-finder' ),
+				'auto'       => __( 'works without configuration', 'plugin-settings-finder' ),
+			);
+			foreach ( $files['mentions'] as $mention ) {
+				if ( isset( $labels[ $mention ] ) && empty( $usage[ $mention ] ) ) {
+					$usage['mentions'][] = $labels[ $mention ];
+				}
+			}
+		}
+		unset( $usage );
+
+		$cache = array_intersect_key( $cache, $this->plugins );
+		if ( $changed ) {
+			update_option( 'psf_usage_cache', $cache, false );
+		}
+		return $targets;
+	}
+
+	/**
+	 * Read block.json files, register_block_type() names and the readme.
+	 *
+	 * @param array $plugin Plugin record.
+	 * @return array{blocks:array<string,string>, readme:string, mentions:string[]}
+	 */
+	private function read_plugin_files( array $plugin ) {
+		$result = array(
+			'blocks'   => array(),
+			'readme'   => '',
+			'mentions' => array(),
+		);
+		$root   = $plugin['paths'][0];
+		$dir    = $plugin['is_dir'] ? $root : dirname( $root ) . '/';
+
+		$php = $plugin['is_dir'] ? array() : array( $root );
+		if ( $plugin['is_dir'] && is_dir( $root ) ) {
+			try {
+				$iterator = new RecursiveIteratorIterator(
+					new RecursiveCallbackFilterIterator(
+						new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS ),
+						static function ( $current ) {
+							if ( $current->isDir() ) {
+								return ! in_array( strtolower( $current->getFilename() ), array( 'node_modules', '.git', 'tests', 'test', 'vendor', 'languages' ), true );
+							}
+							return 'block.json' === $current->getFilename() || ( 'php' === strtolower( $current->getExtension() ) && $current->getSize() < 1048576 );
+						}
+					)
+				);
+				foreach ( $iterator as $file ) {
+					if ( 'block.json' === $file->getFilename() ) {
+						$json = json_decode( (string) file_get_contents( $file->getPathname() ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
+						if ( is_array( $json ) && ! empty( $json['name'] ) && is_string( $json['name'] ) ) {
+							$result['blocks'][ $json['name'] ] = isset( $json['title'] ) && is_string( $json['title'] ) ? $json['title'] : '';
+						}
+					} elseif ( count( $php ) < 1500 ) {
+						$php[] = $file->getPathname();
+					}
+				}
+			} catch ( Exception $e ) {
+				unset( $e );
+			}
+		}
+
+		$deadline = microtime( true ) + 1.0;
+		foreach ( $php as $file ) {
+			if ( microtime( true ) > $deadline ) {
+				break;
+			}
+			$code = (string) file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
+			if ( preg_match_all( '/register_block_type\s*\(\s*[\'"]([a-z0-9-]+\/[a-z0-9-]+)[\'"]/i', $code, $m ) ) {
+				foreach ( $m[1] as $name ) {
+					if ( ! isset( $result['blocks'][ $name ] ) ) {
+						$result['blocks'][ $name ] = '';
+					}
+				}
+			}
+		}
+
+		$readme = '';
+		foreach ( array( 'readme.txt', 'README.txt', 'readme.md', 'README.md' ) as $name ) {
+			if ( $plugin['is_dir'] && is_file( $dir . $name ) ) {
+				$readme = (string) file_get_contents( $dir . $name, false, null, 0, 200000 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
+				break;
+			}
+		}
+		if ( '' === $readme ) {
+			return $result;
+		}
+
+		// Short description: first prose line after the "Key: value" header block.
+		$past_title = false;
+		foreach ( preg_split( '/\R/', $readme ) as $line ) {
+			$line = trim( $line );
+			if ( ! $past_title ) {
+				$past_title = '' !== $line;
+				continue;
+			}
+			if ( '' === $line || preg_match( '/^[A-Za-z][A-Za-z \-]{1,30}:\s/', $line ) || preg_match( '/^(\*\*)?[A-Za-z][A-Za-z \-]{1,30}:(\*\*)?\s/', $line ) ) {
+				continue;
+			}
+			if ( preg_match( '/^(==|#)/', $line ) ) {
+				break;
+			}
+			$result['readme'] = wp_html_excerpt( wp_strip_all_tags( $line ), 160, '…' );
+			break;
+		}
+
+		$text     = strtolower( $readme );
+		$patterns = array(
+			'blocks'     => '/\bblocks?\b|gutenberg|block editor/',
+			'shortcodes' => '/shortcode/',
+			'widgets'    => '/\bwidgets?\b/',
+			'customizer' => '/customi[sz]er/',
+			'cli'        => '/wp[- ]cli/',
+			'auto'       => '/no (settings|configuration|options)|works out of the box|nothing to configure|zero[- ]config|just activate/',
+		);
+		foreach ( $patterns as $key => $pattern ) {
+			if ( preg_match( $pattern, $text ) ) {
+				$result['mentions'][] = $key;
+			}
+		}
+		return $result;
 	}
 }

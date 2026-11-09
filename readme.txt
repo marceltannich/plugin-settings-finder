@@ -2,9 +2,9 @@
 Contributors: marceltannich
 Tags: admin bar, settings, plugins, navigation, developer
 Requires at least: 6.0
-Tested up to: 6.9
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ An admin bar dropdown that takes you straight to the settings pages of every act
 
 You activate a plugin and then go hunting for its settings. It might have its own top-level menu item, or sit under Tools, Settings, Users (for profile features) or Media. A WooCommerce extension might use the WooCommerce menu, Products, or a new tab in the WooCommerce settings tab bar. Some only have a hidden welcome page.
 
-Plugin Settings Finder adds a **Plugin Settings** dropdown to the admin bar. It lists every active plugin with direct links to its admin screens and the breadcrumb of where each one lives ("Settings › Clario", "WooCommerce › Settings › Payments › Foo Pay"). Plugins without any admin screen say so: "No settings page found".
+Plugin Settings Finder adds a **Plugin Settings** dropdown to the admin bar. It lists every active plugin with direct links to its admin screens and the breadcrumb of where each one lives ("Settings › Clario", "WooCommerce › Settings › Payments › Foo Pay"). Plugins without any admin screen say so: "No settings page found", followed by what they add instead: blocks, shortcodes, widgets, hints from their readme ("Readme mentions: blocks, works without configuration") and the readme's short description.
 
 = How pages are found =
 
@@ -47,6 +47,9 @@ As a normal plugin: upload the `plugin-settings-finder` folder to `wp-content/pl
 As a must-use plugin: copy the `plugin-settings-finder` folder into `wp-content/mu-plugins/` and copy `extras/mu-loader.php` next to it (WordPress only loads PHP files at the top level of `mu-plugins`).
 
 == Changelog ==
+
+= 1.4.0 =
+* "No settings page found" now explains what the plugin adds instead: blocks (block.json, register_block_type), shortcodes, widgets, readme hints and the readme short description.
 
 = 1.3.0 =
 * Z to A sort option.

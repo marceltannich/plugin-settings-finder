@@ -2,7 +2,7 @@
 
 **Stop hunting for plugin settings pages.** An admin bar dropdown that lists every active WordPress plugin with direct links to its settings, wherever the plugin decided to put them.
 
-![The Plugin Settings dropdown in the WordPress admin bar](.github/screenshot.jpg)
+![The Plugin Settings dropdown in the WordPress admin bar](docs/screenshot.jpg)
 
 ## The problem
 
@@ -17,11 +17,12 @@ When you review or test a plugin, you install it, activate it, and then go looki
 - as a new tab in the WooCommerce settings tab bar, or a section inside one (payment gateway, shipping method, integration, email)
 - on a hidden page with no menu item at all, like a setup wizard
 
-Plugin Settings Finder solves that. Open the **Plugin Settings** dropdown and every active plugin is listed with its pages and a breadcrumb showing where each one lives, for example `Settings › Clario` or `WooCommerce › Settings › Payments › Foo Pay`. If a plugin has no admin screen, it says **No settings page found**.
+Plugin Settings Finder solves that. Open the **Plugin Settings** dropdown and every active plugin is listed with its pages and a breadcrumb showing where each one lives, for example `Settings › Clario` or `WooCommerce › Settings › Payments › Foo Pay`. If a plugin has no admin screen, it says **No settings page found** and shows what it adds instead: blocks, shortcodes, widgets, hints from its readme and the readme's short description. So you know whether to look in the block editor, a shortcode, a widget area, or nowhere at all.
 
 ## Features
 
 - **Every location covered:** top-level menus, submenus anywhere, hidden pages, post type and taxonomy screens, WooCommerce settings tabs and sections, payment gateways, shipping methods, integrations and emails.
+- **No settings page? Find out why:** blocks (from `block.json` and `register_block_type()`), shortcodes and widgets registered by the plugin, plus readme hints such as *works without configuration*.
 - **Plugin Check (PCP) shortcut:** when [Plugin Check](https://wordpress.org/plugins/plugin-check/) is active, every plugin gets a highlighted *Check with PCP* link that opens PCP with that plugin preselected.
 - **Sort switch:** A to Z (default), Z to A, or recently activated first, saved per user. Each plugin is its own segment, separated by a line. Recently activated plugins get a "x minutes ago" badge.
 - **Filter field** to narrow the list by plugin name or page.

@@ -275,6 +275,83 @@ final class PSF_Admin_Bar {
 	}
 
 	/**
+	 * What a plugin without admin pages adds instead (blocks, shortcodes,
+	 * widgets) and what its readme says about itself.
+	 *
+	 * @param WP_Admin_Bar $bar   Admin bar.
+	 * @param string       $id    Plugin node id.
+	 * @param array        $usage Usage record from the scanner.
+	 */
+	private function usage_nodes( $bar, $id, array $usage ) {
+		$lines = array();
+		if ( ! empty( $usage['blocks'] ) ) {
+			$lines[] = array(
+				/* translators: %s: comma-separated block titles. */
+				sprintf( __( 'Blocks: %s', 'plugin-settings-finder' ), $this->short_list( $usage['blocks'] ) ),
+				admin_url( 'post-new.php?post_type=page' ),
+				__( 'open editor', 'plugin-settings-finder' ),
+			);
+		}
+		if ( ! empty( $usage['shortcodes'] ) ) {
+			$lines[] = array(
+				/* translators: %s: list of shortcodes. */
+				sprintf( __( 'Shortcodes: %s', 'plugin-settings-finder' ), $this->short_list( $usage['shortcodes'], ' ' ) ),
+				'',
+				'',
+			);
+		}
+		if ( ! empty( $usage['widgets'] ) ) {
+			$lines[] = array(
+				/* translators: %s: comma-separated widget names. */
+				sprintf( __( 'Widgets: %s', 'plugin-settings-finder' ), $this->short_list( $usage['widgets'] ) ),
+				admin_url( wp_is_block_theme() ? 'site-editor.php' : 'widgets.php' ),
+				'',
+			);
+		}
+		if ( ! empty( $usage['mentions'] ) ) {
+			$lines[] = array(
+				/* translators: %s: comma-separated hints such as "blocks, shortcodes". */
+				sprintf( __( 'Readme mentions: %s', 'plugin-settings-finder' ), implode( ', ', $usage['mentions'] ) ),
+				'',
+				'',
+			);
+		}
+		if ( ! empty( $usage['readme'] ) ) {
+			$lines[] = array( '“' . $usage['readme'] . '”', '', '' );
+		}
+
+		foreach ( $lines as $i => $line ) {
+			$title = esc_html( $line[0] );
+			if ( '' !== $line[2] ) {
+				$title .= ' <span class="psf-badge">' . esc_html( $line[2] ) . '</span>';
+			}
+			$bar->add_node(
+				array(
+					'parent' => 'psf',
+					'id'     => $id . '-use-' . $i,
+					'title'  => $title,
+					'href'   => '' !== $line[1] ? $line[1] : false,
+					'meta'   => array( 'class' => 'psf-entry psf-info' ),
+				)
+			);
+		}
+	}
+
+	/**
+	 * First few items of a list, "+N more" for the rest.
+	 *
+	 * @param string[] $items Items.
+	 * @param string   $glue  Separator.
+	 * @return string
+	 */
+	private function short_list( array $items, $glue = ', ' ) {
+		$shown = array_slice( $items, 0, 4 );
+		$more  = count( $items ) - count( $shown );
+		/* translators: %d: number of further items. */
+		return implode( $glue, $shown ) . ( $more > 0 ? ' ' . sprintf( __( '+%d more', 'plugin-settings-finder' ), $more ) : '' );
+	}
+
+	/**
 	 * A section heading.
 	 *
 	 * @param WP_Admin_Bar $bar   Admin bar.
@@ -342,6 +419,7 @@ final class PSF_Admin_Bar {
 					'meta'   => array( 'class' => 'psf-entry psf-none' ),
 				)
 			);
+			$this->usage_nodes( $bar, $id, isset( $plugin['usage'] ) ? (array) $plugin['usage'] : array() );
 		}
 
 		foreach ( $entries as $i => $entry ) {
@@ -392,6 +470,7 @@ final class PSF_Admin_Bar {
 			. '#wpadminbar #wp-admin-bar-psf .psf-plugin-empty > .ab-item{opacity:.75}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-entry > .ab-item{padding-left:24px}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-none > .ab-item{font-style:italic;opacity:.65}'
+			. '#wpadminbar #wp-admin-bar-psf .psf-info > .ab-item{font-size:12px;line-height:18px;height:auto;min-height:20px;white-space:normal;max-width:420px;padding-top:2px;padding-bottom:2px;opacity:.9}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-pcp{margin:2px 10px 6px 24px}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item{padding-left:0;color:#68de7c}'
 			. '#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item:hover,#wpadminbar #wp-admin-bar-psf .psf-pcp > .ab-item:focus{color:#fff;background:#00a32a}'
