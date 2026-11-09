@@ -14,7 +14,7 @@ An admin bar dropdown that takes you straight to the settings pages of every act
 
 You activate a plugin and then go hunting for its settings. It might have its own top-level menu item, or sit under Tools, Settings, Users (for profile features) or Media. A WooCommerce extension might use the WooCommerce menu, Products, or a new tab in the WooCommerce settings tab bar. Some only have a hidden welcome page.
 
-Plugin Settings Finder adds a **Plugin Settings Finder** dropdown to the admin bar. It lists every active plugin with direct links to its admin screens and the breadcrumb of where each one lives ("Settings › Clario", "WooCommerce › Settings › Payments › Foo Pay"). Plugins without any admin screen say so: "No settings page found", followed by what they add instead: blocks, shortcodes, widgets, hints from their readme ("Readme mentions: blocks, works without configuration") and the readme's short description.
+Plugin Settings Finder adds a **Plugin Settings Finder** dropdown to the admin bar. It lists every active plugin with direct links to its admin screens and the breadcrumb of where each one lives ("Settings › Example", "WooCommerce › Settings › Payments › Example Pay"). Plugins without any admin screen say so: "No settings page found", followed by what they add instead: blocks, shortcodes, widgets, hints from their readme ("Readme mentions: blocks, works without configuration") and the readme's short description.
 
 = How pages are found =
 

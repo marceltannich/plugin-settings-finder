@@ -17,7 +17,7 @@ When you review or test a plugin, you install it, activate it, and then go looki
 - as a new tab in the WooCommerce settings tab bar, or a section inside one (payment gateway, shipping method, integration, email)
 - on a hidden page with no menu item at all, like a setup wizard
 
-Plugin Settings Finder solves that. Open the **Plugin Settings Finder** dropdown and every active plugin is listed with its pages and a breadcrumb showing where each one lives, for example `Settings › Clario` or `WooCommerce › Settings › Payments › Foo Pay`. If a plugin has no admin screen, it says **No settings page found** and shows what it adds instead: blocks, shortcodes, widgets, hints from its readme and the readme's short description. So you know whether to look in the block editor, a shortcode, a widget area, or nowhere at all.
+Plugin Settings Finder solves that. Open the **Plugin Settings Finder** dropdown and every active plugin is listed with its pages and a breadcrumb showing where each one lives, for example `Settings › Example` or `WooCommerce › Settings › Payments › Example Pay`. If a plugin has no admin screen, it says **No settings page found** and shows what it adds instead: blocks, shortcodes, widgets, hints from its readme and the readme's short description. So you know whether to look in the block editor, a shortcode, a widget area, or nowhere at all.
 
 ## Features
 
