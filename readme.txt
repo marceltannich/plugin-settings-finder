@@ -4,7 +4,7 @@ Tags: admin bar, settings, plugins, navigation, developer
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,9 +52,9 @@ With WP-CLI: `wp plugin install https://github.com/marceltannich/plugin-settings
 
 = As a must-use plugin (recommended for review sites) =
 
-With WP-CLI: `wp settings-finder install-mu`, then `wp plugin delete plugin-settings-finder`.
+Install and activate it as above, then click **Move to must-use** in its row on the Plugins screen (or run `wp settings-finder install-mu`). It copies itself to `wp-content/mu-plugins`, adds the loader file and deactivates the regular copy. Delete the regular copy afterwards.
 
-By hand: copy the `plugin-settings-finder` folder into `wp-content/mu-plugins/` and copy `extras/mu-loader.php` to `wp-content/mu-plugins/plugin-settings-finder-loader.php`. WordPress only loads PHP files at the top level of `mu-plugins`, so the folder alone does nothing.
+Copying only the folder into `mu-plugins` does nothing: WordPress loads only PHP files at the top level of `mu-plugins`. By hand, also copy `extras/mu-loader.php` to `wp-content/mu-plugins/plugin-settings-finder-loader.php`.
 
 = WP-CLI =
 
@@ -63,6 +63,11 @@ By hand: copy the `plugin-settings-finder` folder into `wp-content/mu-plugins/` 
 * `wp settings-finder install-mu [--force]`
 
 == Changelog ==
+
+= 1.5.1 =
+* "Move to must-use" link on the Plugins screen: copies the plugin to mu-plugins, adds the loader and deactivates the regular copy. Refuses to overwrite a Git checkout.
+* The mu-plugins loader also finds renamed folders such as plugin-settings-finder-main.
+* README: installation leads with the regular install plus the one-click move.
 
 = 1.5.0 =
 * Refactor: the scanner is split into detectors (menu, WooCommerce, row links, code scan, usage) sharing one context; add your own via the `psf_detectors` filter.

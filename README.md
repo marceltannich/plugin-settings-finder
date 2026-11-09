@@ -49,57 +49,47 @@ The list is rebuilt right away when the set of active plugins changes (so a plug
 
 ## Installation
 
-Requires WordPress 6.0+ and PHP 7.4+. Pick one of the three ways below.
+Requires WordPress 6.0+ and PHP 7.4+.
 
-### Option A: as a normal plugin (quickest)
+**Install it like any other plugin.** On review and test sites, then click **Move to must-use** so it stays on whatever you activate or deactivate.
 
 1. Download **`plugin-settings-finder.zip`** from the [latest release](https://github.com/marceltannich/plugin-settings-finder/releases/latest).
 2. In wp-admin go to *Plugins › Add New Plugin › Upload Plugin*, choose the ZIP, click *Install Now*, then *Activate*.
 3. Open any admin screen. The **Plugin Settings Finder** dropdown appears in the admin bar.
+4. Optional, recommended for review sites: on the *Plugins* screen, click **Move to must-use** in the plugin's row. It copies itself to `wp-content/mu-plugins`, adds the small loader file WordPress needs there, and deactivates the regular copy. Delete the regular copy afterwards.
 
 Or with WP-CLI:
 
 ```bash
 wp plugin install https://github.com/marceltannich/plugin-settings-finder/releases/latest/download/plugin-settings-finder.zip --activate
-```
-
-> Use the release ZIP, not GitHub's green *Code › Download ZIP* button. That one unpacks to a folder called `plugin-settings-finder-main`, which works but looks odd and does not update cleanly.
-
-### Option B: as a must-use plugin (recommended for review and test sites)
-
-A must-use plugin is always on, cannot be deactivated by accident, and keeps working while you activate and deactivate the plugins you are reviewing.
-
-**With WP-CLI**, after Option A:
-
-```bash
-wp settings-finder install-mu
+wp settings-finder install-mu    # optional: move to mu-plugins
 wp plugin delete plugin-settings-finder
 ```
 
-`install-mu` copies the plugin to `wp-content/mu-plugins/plugin-settings-finder/`, writes the loader file `wp-content/mu-plugins/plugin-settings-finder-loader.php` and deactivates the regular copy.
+> **Copying the folder into `mu-plugins` by itself does nothing.** WordPress only loads PHP files that sit directly in `mu-plugins`, never files inside sub-folders. That is why the move adds a loader file. If you copy by hand, see below.
 
-**By hand:**
+### Copying into mu-plugins by hand
 
-1. Unzip the release and copy the `plugin-settings-finder` folder into `wp-content/mu-plugins/` (create the folder if it does not exist).
+Only needed when WordPress cannot write files on the server (the **Move to must-use** link then tells you so).
+
+1. Unzip the release and copy the `plugin-settings-finder` folder into `wp-content/mu-plugins/` (create that folder if it does not exist).
 2. Copy `plugin-settings-finder/extras/mu-loader.php` to `wp-content/mu-plugins/plugin-settings-finder-loader.php`.
-
-WordPress only loads PHP files that sit directly in `mu-plugins`, never files inside sub-folders. Without the loader file nothing happens. The result must look like this:
 
 ```
 wp-content/mu-plugins/
-├── plugin-settings-finder-loader.php
+├── plugin-settings-finder-loader.php   ← required
 └── plugin-settings-finder/
     ├── plugin-settings-finder.php
     ├── includes/
     └── ...
 ```
 
-Check it under *Plugins › Must-Use*: "Plugin Settings Finder (MU loader)" should be listed.
+Check it under *Plugins › Must-Use*: "Plugin Settings Finder (MU loader)" should be listed. The loader also finds a renamed folder, such as `plugin-settings-finder-main` from GitHub's *Code › Download ZIP* button.
 
-### Option C: with Git (to pull updates)
+### With Git (to pull updates)
 
 ```bash
-cd wp-content/plugins            # or wp-content/mu-plugins, plus the loader from Option B
+cd wp-content/plugins            # or wp-content/mu-plugins, plus the loader (see above)
 git clone https://github.com/marceltannich/plugin-settings-finder.git
 wp plugin activate plugin-settings-finder   # skip for mu-plugins
 ```
@@ -108,7 +98,7 @@ Update later with `git pull` in that folder.
 
 ### Updating and removing
 
-* **Update:** install the new release ZIP over the old one (*Upload Plugin* offers *Replace current with uploaded*), `git pull`, or for mu-plugins replace the folder.
+* **Update:** install the new release ZIP over the old one (*Upload Plugin* offers *Replace current with uploaded*), `git pull`, or for mu-plugins replace the `plugin-settings-finder` folder and keep the loader file next to it.
 * **Remove (normal plugin):** deactivate and delete it under *Plugins*. Its stored data (the page index, activation times, sort choice) is removed too.
 * **Remove (mu-plugins):** delete `plugin-settings-finder-loader.php` and the `plugin-settings-finder` folder from `mu-plugins`. Leftover data is three small options named `psf_*`; remove them with `wp option delete psf_index psf_activations psf_code_cache psf_usage_cache` if you like.
 
@@ -135,7 +125,7 @@ wp settings-finder list                   # all plugins and their pages
 wp settings-finder list akismet           # one plugin (folder name or basename)
 wp settings-finder list --empty           # only plugins without a settings page
 wp settings-finder list --format=json     # table, csv, json or yaml
-wp settings-finder install-mu             # move into mu-plugins (see Option B)
+wp settings-finder install-mu             # move into mu-plugins (same as the Move to must-use link)
 ```
 
 `rescan` needs wp-admin, which only exists in a browser request, so it loads one wp-admin page of your own site (a loopback request) as an administrator, with a login session that is created for that one request and destroyed right after. Pick the user with `--user=<login>`. If your site cannot reach itself (local DNS, firewall, HTTP basic auth), it says so; then open any wp-admin page in the browser once, or use `rescan --clear-only`.

@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Plugin Settings Finder 1.5.0\n"
-"Report-Msgid-Bugs-To: https://github.com/marceltannich/plugin-settings-finder/issues\n"
+"Project-Id-Version: Plugin Settings Finder 1.5.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/plugin-settings-finder\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-09T13:46:12+00:00\n"
+"POT-Creation-Date: 2026-11-09T14:17:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: plugin-settings-finder\n"
@@ -129,6 +129,70 @@ msgstr ""
 msgid "Check with PCP"
 msgstr ""
 
+#: includes/class-psf-installer.php:68
+msgid "Copy this plugin to wp-content/mu-plugins so it is always active, then deactivate this copy."
+msgstr ""
+
+#: includes/class-psf-installer.php:69
+msgid "Move to must-use"
+msgstr ""
+
+#: includes/class-psf-installer.php:79
+msgid "Sorry, you are not allowed to manage plugins."
+msgstr ""
+
+#: includes/class-psf-installer.php:106
+msgid "Plugin Settings Finder now runs as a must-use plugin. You can delete the regular copy under Plugins."
+msgstr ""
+
+#: includes/class-psf-installer.php:116
+msgid "Could not move Plugin Settings Finder to mu-plugins:"
+msgstr ""
+
+#: includes/class-psf-installer.php:145
+msgid "Plugin Settings Finder already runs as a must-use plugin."
+msgstr ""
+
+#. translators: %s: folder path.
+#: includes/class-psf-installer.php:149
+msgid "%s is a Git checkout. Update it with git instead."
+msgstr ""
+
+#. translators: %s: folder path.
+#: includes/class-psf-installer.php:153
+msgid "%s already exists."
+msgstr ""
+
+#: includes/class-psf-installer.php:159
+msgid "WordPress cannot write to wp-content/mu-plugins directly on this server. Copy the files by hand (see the README)."
+msgstr ""
+
+#. translators: %s: folder path.
+#: includes/class-psf-installer.php:165
+#: includes/class-psf-installer.php:172
+msgid "Could not create %s."
+msgstr ""
+
+#. translators: %s: file path.
+#: includes/class-psf-installer.php:180
+msgid "Could not write %s."
+msgstr ""
+
+#. translators: %s: folder path.
+#: includes/class-psf-installer.php:183
+msgid "Copied to %s"
+msgstr ""
+
+#. translators: %s: file path.
+#: includes/class-psf-installer.php:185
+msgid "Wrote loader %s"
+msgstr ""
+
+#. translators: %s: plugin basename.
+#: includes/class-psf-installer.php:192
+msgid "Deactivated the regular copy (%s)."
+msgstr ""
+
 #: includes/detectors/class-psf-detector-usage.php:128
 msgid "blocks"
 msgstr ""
@@ -162,6 +226,6 @@ msgid "Settings"
 msgstr ""
 
 #. translators: %s: comma-separated list of missing files.
-#: plugin-settings-finder.php:59
+#: plugin-settings-finder.php:60
 msgid "Plugin Settings Finder is incomplete and has not been loaded. Missing files: %s. Please reinstall the plugin."
 msgstr ""

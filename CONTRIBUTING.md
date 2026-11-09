@@ -30,7 +30,7 @@ composer test-site            # or: WITH_WOO=1 composer test-site
 | `composer lint` | `php -l` on every PHP file |
 | `composer phpcs` | WordPress Coding Standards + PHP 7.4 compatibility (`composer phpcbf` fixes what it can) |
 | `composer test` | PHPUnit inside the test site, as a wp-admin request. Arguments pass through: `composer test -- --filter Scanner` |
-| `composer smoke` | End to end through WP-CLI and `php -S`: `rescan`, `list`, second and incomplete copies, `install-mu`, uninstall, no PHP errors in `debug.log` |
+| `composer smoke` | End to end through WP-CLI, `curl` and `php -S`: `rescan`, `list`, second and incomplete copies, `install-mu`, the **Move to must-use** link (logged in), a renamed mu-plugins folder, uninstall, no PHP errors in `debug.log` |
 | `composer build` | `dist/plugin-settings-finder.zip` with runtime files only |
 | `composer pot` | Regenerate `languages/plugin-settings-finder.pot` |
 
@@ -50,6 +50,7 @@ includes/
   class-psf-context.php           Shared state of one build + attribution helpers
   class-psf-files.php             Bounded reads of a plugin's files
   class-psf-registrations.php     Which file registered each post type / taxonomy
+  class-psf-installer.php         Move to must-use (Plugins screen link and install-mu)
   class-psf-cli.php               wp settings-finder list | rescan | install-mu
   interface-psf-detector.php
   detectors/
@@ -88,5 +89,5 @@ tests/
 4. `composer build`, then create the release and attach the ZIP **with exactly this file name**, because the README links to `releases/latest/download/plugin-settings-finder.zip`:
 
 ```bash
-gh release create v1.5.0 dist/plugin-settings-finder.zip --title "Plugin Settings Finder 1.5.0" --generate-notes
+gh release create v1.5.1 dist/plugin-settings-finder.zip --title "Plugin Settings Finder 1.5.1" --generate-notes
 ```

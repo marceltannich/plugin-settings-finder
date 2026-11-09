@@ -215,52 +215,19 @@ final class PSF_CLI {
 	 * @param array $assoc_args Associative arguments.
 	 */
 	public function install_mu( $args, $assoc_args ) {
-		$source = untrailingslashit( PSF_PLUGIN_DIR );
-		$mu_dir = untrailingslashit( WPMU_PLUGIN_DIR );
-		$target = $mu_dir . '/plugin-settings-finder';
-		$loader = $mu_dir . '/plugin-settings-finder-loader.php';
-
-		if ( wp_normalize_path( $source ) === wp_normalize_path( $target ) ) {
+		if ( PSF_Installer::is_must_use() ) {
 			WP_CLI::success( 'Already running from mu-plugins. Nothing to do.' );
 			return;
 		}
-		if ( file_exists( $target ) && empty( $assoc_args['force'] ) ) {
-			WP_CLI::error( "{$target} already exists. Use --force to overwrite it." );
+		$result = PSF_Installer::install( ! empty( $assoc_args['force'] ) );
+		if ( is_wp_error( $result ) ) {
+			$hint = 'psf_exists' === $result->get_error_code() ? ' Use --force to overwrite it.' : '';
+			WP_CLI::error( $result->get_error_message() . $hint );
 		}
-
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		if ( ! WP_Filesystem() ) {
-			WP_CLI::error( 'Could not access the filesystem.' );
+		foreach ( $result as $line ) {
+			WP_CLI::log( $line );
 		}
-		global $wp_filesystem;
-
-		if ( ! $wp_filesystem->is_dir( $mu_dir ) && ! $wp_filesystem->mkdir( $mu_dir, FS_CHMOD_DIR ) ) {
-			WP_CLI::error( "Could not create {$mu_dir}." );
-		}
-		if ( $wp_filesystem->is_dir( $target ) ) {
-			$wp_filesystem->delete( $target, true );
-		}
-		if ( ! $wp_filesystem->mkdir( $target, FS_CHMOD_DIR ) ) {
-			WP_CLI::error( "Could not create {$target}." );
-		}
-		$copied = copy_dir( $source, $target, array( '.git', '.github', 'tests', 'vendor', 'node_modules', 'dist', 'bin' ) );
-		if ( is_wp_error( $copied ) ) {
-			WP_CLI::error( $copied->get_error_message() );
-		}
-		if ( ! $wp_filesystem->copy( $source . '/extras/mu-loader.php', $loader, true, FS_CHMOD_FILE ) ) {
-			WP_CLI::error( "Could not write {$loader}." );
-		}
-		WP_CLI::log( "Copied to {$target}" );
-		WP_CLI::log( "Wrote loader {$loader}" );
-
-		$basename = plugin_basename( PSF_PLUGIN_FILE );
-		if ( is_plugin_active( $basename ) || is_plugin_active_for_network( $basename ) ) {
-			deactivate_plugins( $basename, true, is_plugin_active_for_network( $basename ) );
-			WP_CLI::log( "Deactivated the regular copy ({$basename})." );
-		}
-
-		WP_CLI::success( 'Installed as a must-use plugin. Remove the regular copy with: wp plugin delete ' . dirname( $basename ) );
+		WP_CLI::success( 'Installed as a must-use plugin. Remove the regular copy with: wp plugin delete ' . dirname( plugin_basename( PSF_PLUGIN_FILE ) ) );
 	}
 
 	/**

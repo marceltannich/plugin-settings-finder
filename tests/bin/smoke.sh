@@ -28,9 +28,11 @@ contains() { case "$1" in *"$2"*) return 0 ;; *) return 1 ;; esac; }
 : > "$LOG"
 php -S "$HOSTPORT" -t "$SITE" > /dev/null 2>&1 &
 SERVER=$!
+JAR="$(mktemp)"
 cleanup() {
 	kill "$SERVER" 2> /dev/null || true
-	rm -rf "$PLUGINS/psf-copy" "$PLUGINS/psf-broken" "$MU/plugin-settings-finder" "$MU/plugin-settings-finder-loader.php"
+	rm -f "$JAR"
+	rm -rf "$PLUGINS/psf-copy" "$PLUGINS/psf-broken" "$MU/plugin-settings-finder" "$MU/plugin-settings-finder-main" "$MU/plugin-settings-finder-loader.php"
 	wp plugin activate plugin-settings-finder --quiet 2> /dev/null || true
 }
 trap cleanup EXIT
@@ -91,6 +93,30 @@ contains "$(wp settings-finder install-mu 2>&1)" "Already running from mu-plugin
 rm -rf "$MU/plugin-settings-finder" "$MU/plugin-settings-finder-loader.php"
 wp plugin activate plugin-settings-finder --quiet
 pass "install-mu copies runtime files, writes the loader and deactivates the regular copy"
+
+echo "Move to must-use (Plugins screen link)"
+curl -fs -c "$JAR" -b "$JAR" -o /dev/null "$URL/wp-login.php"
+curl -fs -c "$JAR" -b "$JAR" -o /dev/null --data-urlencode "log=admin" --data-urlencode "pwd=psf-test-only" \
+	--data-urlencode "testcookie=1" --data-urlencode "redirect_to=$URL/wp-admin/" "$URL/wp-login.php"
+plugins_html="$(curl -fs -b "$JAR" "$URL/wp-admin/plugins.php")"
+link="$(printf '%s' "$plugins_html" | php -r 'preg_match( "#href=\"([^\"]*action=psf_install_mu[^\"]*)\"#", stream_get_contents( STDIN ), $m ) && print( html_entity_decode( $m[1] ) );')"
+[ -n "$link" ] || fail "Move to must-use link on the Plugins screen"
+result="$(curl -fsL -b "$JAR" "$link")"
+contains "$result" "now runs as a must-use plugin" || fail "success notice after the move"
+[ -f "$MU/plugin-settings-finder-loader.php" ] && [ -d "$MU/plugin-settings-finder/includes" ] || fail "files in mu-plugins after the link"
+contains "$(wp plugin list --status=inactive --field=name)" "plugin-settings-finder" || fail "regular copy deactivated by the link"
+contains "$(curl -fs -b "$JAR" "$URL/wp-admin/plugins.php")" "action=psf_install_mu" && fail "link must disappear once running from mu-plugins"
+rm -rf "$MU/plugin-settings-finder" "$MU/plugin-settings-finder-loader.php"
+wp plugin activate plugin-settings-finder --quiet
+pass "the link moves the plugin, shows a notice, and is gone afterwards"
+
+rsync -a --exclude .git --exclude vendor --exclude tests --exclude dist "$ROOT/" "$MU/plugin-settings-finder-main/"
+cp "$ROOT/extras/mu-loader.php" "$MU/plugin-settings-finder-loader.php"
+wp plugin deactivate plugin-settings-finder --quiet
+contains "$(wp eval 'echo PSF_PLUGIN_DIR;')" "/mu-plugins/plugin-settings-finder-main/" || fail "loader finds a renamed folder"
+rm -rf "$MU/plugin-settings-finder-main" "$MU/plugin-settings-finder-loader.php"
+wp plugin activate plugin-settings-finder --quiet
+pass "the loader also finds a renamed folder (plugin-settings-finder-main)"
 
 echo "Uninstall"
 wp settings-finder rescan --quiet
